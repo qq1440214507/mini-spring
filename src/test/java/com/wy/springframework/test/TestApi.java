@@ -1,26 +1,35 @@
 package com.wy.springframework.test;
 
-import com.wy.springframework.beans.PropertyValue;
-import com.wy.springframework.beans.PropertyValues;
-import com.wy.springframework.beans.factory.config.BeanDefinition;
-import com.wy.springframework.beans.factory.config.BeanReference;
+import cn.hutool.core.io.IoUtil;
 import com.wy.springframework.beans.factory.support.DefaultListableBeanFactory;
-import com.wy.springframework.test.bean.UserDao;
+import com.wy.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import com.wy.springframework.core.io.DefaultResourceLoader;
+import com.wy.springframework.core.io.Resource;
 import com.wy.springframework.test.bean.UserService;
+import org.junit.Before;
 import org.junit.Test;
 
-public class TestApi {
-    @Test
-    public void test_BeanFactory(){
-        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
-        beanFactory.registerBeanDefinition("userDao",new BeanDefinition(UserDao.class));
+import java.io.IOException;
+import java.io.InputStream;
 
-        PropertyValues propertyValues = new PropertyValues();
-        propertyValues.addPropertyValue(new PropertyValue("uid","10002"));
-        propertyValues.addPropertyValue(new PropertyValue("userDao",new BeanReference("userDao")));
-        BeanDefinition beanDefinition = new BeanDefinition(UserService.class,propertyValues);
-        beanFactory.registerBeanDefinition("userService",beanDefinition);
-        UserService userService = (UserService) beanFactory.getBean("userService");
+public class TestApi {
+    private DefaultResourceLoader resourceLoader;
+    @Before
+    public void init(){
+        resourceLoader = new DefaultResourceLoader();
+    }
+    @Test
+    public void test_BeanFactory() throws IOException {
+        Resource resource = resourceLoader.getResource("classpath:important.properties");
+        final InputStream inputStream = resource.getInputStream();
+        System.out.println(IoUtil.read(inputStream));
+    }
+    @Test
+    public void test_xml(){
+        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+        final XmlBeanDefinitionReader xmlBeanDefinitionReader = new XmlBeanDefinitionReader(beanFactory);
+        xmlBeanDefinitionReader.loadBeanDefinitions("classpath:spring.xml");
+        final UserService userService = (UserService) beanFactory.getBean("userService", UserService.class);
         userService.queryUserInfo();
     }
 }
