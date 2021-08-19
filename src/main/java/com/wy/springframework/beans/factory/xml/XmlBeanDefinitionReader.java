@@ -27,35 +27,34 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
         super(registry, resourceLoader);
     }
 
-
-
-
     @Override
     public void loadBeanDefinitions(Resource resource) throws BeansException {
         try {
             try (InputStream inputStream = resource.getInputStream()) {
                 doLoadBeanDefinitions(inputStream);
             }
-
         } catch (IOException | ClassNotFoundException e) {
             throw new BeansException("IOException parsing XML from " + resource, e);
         }
     }
-
     @Override
     public void loadBeanDefinitions(Resource... resources) throws BeansException {
         for (Resource resource : resources) {
             loadBeanDefinitions(resource);
         }
     }
-
     @Override
     public void loadBeanDefinitions(String location) throws BeanException {
         final ResourceLoader resourceLoader = getResourceLoader();
         final Resource resource = resourceLoader.getResource(location);
         loadBeanDefinitions(resource);
     }
-
+    @Override
+    public void loadBeanDefinitions(String... locations) throws BeansException {
+        for (String location : locations) {
+            loadBeanDefinitions(location);
+        }
+    }
     protected void doLoadBeanDefinitions(InputStream inputStream) throws ClassNotFoundException {
         final Document doc = XmlUtil.readXML(inputStream);
         final Element root = doc.getDocumentElement();
@@ -94,10 +93,10 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
                 PropertyValue propertyValue = new PropertyValue(attrName,value);
                 beanDefinition.getPropertyValues().addPropertyValue(propertyValue);
             }
-            if (getRegister().containsBeanDefinition(beanName)){
+            if (getRegistry().containsBeanDefinition(beanName)){
                 throw new BeansException("duplicate beanName "+ beanName);
             }
-            getRegister().registerBeanDefinition(beanName,beanDefinition);
+            getRegistry().registerBeanDefinition(beanName,beanDefinition);
         }
     }
 }

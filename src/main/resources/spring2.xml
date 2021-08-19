@@ -7,4 +7,6 @@
         <property name="location" value="先"/>
         <property name="userDao" ref="userDao"/>
     </bean>
+    <bean class="com.wy.springframework.test.common.MyBeanFactoryPostProcessor"/>
+    <bean class="com.wy.springframework.test.common.MyBeanPostProcessor"/>
 </beans>
