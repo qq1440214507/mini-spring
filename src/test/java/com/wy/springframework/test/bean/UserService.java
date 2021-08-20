@@ -1,6 +1,9 @@
 package com.wy.springframework.test.bean;
 
-public class UserService {
+import com.wy.springframework.beans.factory.DisposableBean;
+import com.wy.springframework.beans.factory.InitializingBean;
+
+public class UserService implements InitializingBean, DisposableBean {
     private String uid;
     private String company;
     private String location;
@@ -40,5 +43,15 @@ public class UserService {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        System.out.println("destroy");
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        System.out.println("afterPropertiesSet");
     }
 }

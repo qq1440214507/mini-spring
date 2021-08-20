@@ -23,6 +23,7 @@ public class TestApi {
     @Test
     public void test_xml(){
         ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring2.xml");
+        applicationContext.registerShutdownHook();
         final UserService userService1 = applicationContext.getBean("userService", UserService.class);
         userService1.queryUserInfo();
 

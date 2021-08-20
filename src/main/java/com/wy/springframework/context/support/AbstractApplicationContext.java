@@ -22,6 +22,16 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
 
     }
 
+    @Override
+    public void registerShutdownHook() {
+        Runtime.getRuntime().addShutdownHook(new Thread(this::close));
+    }
+
+    @Override
+    public void close() {
+        getBeanFactory().destroySingletons();
+    }
+
     protected void registerBeanPostProcessors(ConfigurableListableBeanFactory beanFactory) {
         final Map<String, BeanPostProcessor> beanPostProcessorMap = beanFactory.getBeansOfType(BeanPostProcessor.class);
         for (BeanPostProcessor beanPostProcessor : beanPostProcessorMap.values()) {

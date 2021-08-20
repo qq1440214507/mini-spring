@@ -5,11 +5,18 @@ import java.util.Map;
 
 public class UserDao {
     private static Map<String,String> hashMap = new HashMap<>();
-    static {
-        hashMap.put("10001","小哥");
-        hashMap.put("10002","八杯水");
-        hashMap.put("10003","阿毛");
+    public void initDataMethod(){
+        System.out.println("initDataMethod");
+        hashMap.put("10001","笑而过");
+        hashMap.put("10002","库而过");
+        hashMap.put("10003","阿毛过");
     }
+
+    public void destroyDataMethod(){
+        System.out.println("destroyDataMethod");
+        hashMap.clear();
+    }
+
     public String queryUserName(String uid){
         return hashMap.get(uid);
     }
