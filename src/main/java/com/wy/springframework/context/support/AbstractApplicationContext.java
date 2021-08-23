@@ -4,6 +4,7 @@ import com.wy.springframework.beans.BeansException;
 import com.wy.springframework.beans.factory.ConfigurableListableBeanFactory;
 import com.wy.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import com.wy.springframework.beans.factory.config.BeanPostProcessor;
+import com.wy.springframework.beans.factory.support.ApplicationContextAwareProcessor;
 import com.wy.springframework.context.ConfigurableApplicationContext;
 import com.wy.springframework.core.io.DefaultResourceLoader;
 
@@ -16,6 +17,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     public void refresh() throws BeansException {
         refreshBeanFactory();
         final ConfigurableListableBeanFactory beanFactory = getBeanFactory();
+        beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
         invokeBeanFactoryPostProcessors(beanFactory);
         registerBeanPostProcessors(beanFactory);
         beanFactory.preInstantiateSingletons();

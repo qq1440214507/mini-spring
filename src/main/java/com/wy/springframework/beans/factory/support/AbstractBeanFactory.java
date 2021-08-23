@@ -5,12 +5,14 @@ import com.wy.springframework.beans.factory.config.BeanDefinition;
 import com.wy.springframework.beans.factory.config.BeanPostProcessor;
 import com.wy.springframework.beans.factory.config.ConfigurableBeanFactory;
 import com.wy.springframework.beans.factory.config.DefaultSingletonBeanRegistry;
+import com.wy.springframework.util.ClassUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry implements ConfigurableBeanFactory {
     private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
+    private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
     @Override
     public Object getBean(String beanName, Object... args) throws BeansException {
@@ -49,5 +51,9 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 
     public List<BeanPostProcessor> getBeanPostProcessors() {
         return beanPostProcessors;
+    }
+
+    public ClassLoader getBeanClassLoader() {
+        return beanClassLoader;
     }
 }
