@@ -36,11 +36,14 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             throw new BeansException("init bean error", e);
         }
         registerDisposableBeanIfNecessary(beanName, bean, beanDefinition);
-        addSingleton(beanName, bean);
+        if (beanDefinition.isSingleton()){
+            addSingleton(beanName, bean);
+        }
         return bean;
     }
 
     protected void registerDisposableBeanIfNecessary(String beanName, Object bean, BeanDefinition beanDefinition) {
+        if (!beanDefinition.isSingleton()) return;
         if (bean instanceof DisposableBean || StrUtil.isNotEmpty(beanDefinition.getDestroyMethodName())) {
             registerDisposableBean(beanName,new DisposableBeanAdapter(bean,beanName,beanDefinition));
         }
@@ -95,7 +98,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                 BeanUtil.setFieldValue(bean, name, value);
             }
         } catch (Exception e) {
-            throw new BeansException("error set property values:" + beanName);
+            throw new BeansException("error set property values:" + beanName,e);
         }
     }
 

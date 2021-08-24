@@ -1,6 +1,7 @@
 package com.wy.springframework.beans.factory.support;
 
 import com.wy.springframework.beans.BeansException;
+import com.wy.springframework.beans.factory.FactoryBean;
 import com.wy.springframework.beans.factory.config.BeanDefinition;
 import com.wy.springframework.beans.factory.config.BeanPostProcessor;
 import com.wy.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -10,7 +11,7 @@ import com.wy.springframework.util.ClassUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry implements ConfigurableBeanFactory {
+public abstract class AbstractBeanFactory extends FactoryBeanRegisterSupport implements ConfigurableBeanFactory {
     private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
     private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
@@ -26,12 +27,24 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 
     @SuppressWarnings("unchecked")
     protected <T> T doGetBean(final String beanName, final Object[] args) {
-        Object bean = getSingleton(beanName);
-        if (bean != null) {
-            return (T) bean;
+        Object sharedInstance = getSingleton(beanName);
+        if (sharedInstance != null) {
+            return (T) getObjectForBeanInstance(sharedInstance,beanName);
         }
         BeanDefinition beanDefinition = getBeanDefinition(beanName);
         return (T) createBean(beanName, beanDefinition, args);
+    }
+
+    private Object getObjectForBeanInstance(Object beanInstance, String beanName) {
+        if (!(beanInstance instanceof FactoryBean)){
+            return beanInstance;
+        }
+         Object object = getCachedObjectForFactoryBean(beanName);
+        if (object == null){
+            final FactoryBean<?> factoryBean = (FactoryBean<?>) beanInstance;
+            object = getObjectFromFactoryBean(factoryBean, beanName);
+        }
+        return object;
     }
 
     @Override

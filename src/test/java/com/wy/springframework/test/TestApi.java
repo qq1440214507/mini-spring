@@ -17,11 +17,12 @@ public class TestApi {
     public void test_xml(){
         ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring2.xml");
         applicationContext.registerShutdownHook();
-        final UserService userService = applicationContext.getBean("userService", UserService.class);
-        userService.queryUserInfo();
+        final UserService userService1 = applicationContext.getBean("userService", UserService.class);
+        final UserService userService2 = applicationContext.getBean("userService", UserService.class);
+        userService2.queryUserInfo();
+        System.out.println(userService1);
+        System.out.println(userService2);
 
-        System.out.println(userService.getApplicationContext());
-        System.out.println(userService.getBeanFactory());
 
     }
 }

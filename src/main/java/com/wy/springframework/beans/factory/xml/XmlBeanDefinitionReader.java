@@ -37,24 +37,28 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
             throw new BeansException("IOException parsing XML from " + resource, e);
         }
     }
+
     @Override
     public void loadBeanDefinitions(Resource... resources) throws BeansException {
         for (Resource resource : resources) {
             loadBeanDefinitions(resource);
         }
     }
+
     @Override
     public void loadBeanDefinitions(String location) throws BeanException {
         final ResourceLoader resourceLoader = getResourceLoader();
         final Resource resource = resourceLoader.getResource(location);
         loadBeanDefinitions(resource);
     }
+
     @Override
     public void loadBeanDefinitions(String... locations) throws BeansException {
         for (String location : locations) {
             loadBeanDefinitions(location);
         }
     }
+
     protected void doLoadBeanDefinitions(InputStream inputStream) throws ClassNotFoundException {
         final Document doc = XmlUtil.readXML(inputStream);
         final Element root = doc.getDocumentElement();
@@ -71,19 +75,20 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
             final String id = bean.getAttribute("id");
             final String name = bean.getAttribute("name");
             final String className = bean.getAttribute("class");
+            final String beanScope = bean.getAttribute("scope");
+            final String destroyMethodName = bean.getAttribute("destroy-method");
+            final String initMethodName = bean.getAttribute("init-method");
+
             final Class<?> clazz = Class.forName(className);
             String beanName = StrUtil.isNotEmpty(id) ? id : name;
             if (StrUtil.isEmpty(beanName)) {
                 beanName = StrUtil.lowerFirst(clazz.getSimpleName());
             }
             BeanDefinition beanDefinition = new BeanDefinition(clazz);
-            final String initMethodName = bean.getAttribute("init-method");
-            if (StrUtil.isNotEmpty(initMethodName)){
-                beanDefinition.setInitMethodName(initMethodName);
-            }
-            final String destroyMethodName = bean.getAttribute("destroy-method");
-            if (StrUtil.isNotEmpty(destroyMethodName)){
-                beanDefinition.setDestroyMethodName(destroyMethodName);
+            beanDefinition.setInitMethodName(initMethodName);
+            beanDefinition.setDestroyMethodName(destroyMethodName);
+            if (StrUtil.isNotEmpty(beanScope)){
+                beanDefinition.setScope(beanScope);
             }
             for (int j = 0; j < bean.getChildNodes().getLength(); j++) {
                 if (!(bean.getChildNodes().item(j) instanceof Element)) {
@@ -98,13 +103,13 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
                 final String attrRef = property.getAttribute("ref");
                 Object value = StrUtil.isNotEmpty(attrRef) ? new BeanReference(attrRef)
                         : attrValue;
-                PropertyValue propertyValue = new PropertyValue(attrName,value);
+                PropertyValue propertyValue = new PropertyValue(attrName, value);
                 beanDefinition.getPropertyValues().addPropertyValue(propertyValue);
             }
-            if (getRegistry().containsBeanDefinition(beanName)){
-                throw new BeansException("duplicate beanName "+ beanName);
+            if (getRegistry().containsBeanDefinition(beanName)) {
+                throw new BeansException("duplicate beanName " + beanName);
             }
-            getRegistry().registerBeanDefinition(beanName,beanDefinition);
+            getRegistry().registerBeanDefinition(beanName, beanDefinition);
         }
     }
 }
