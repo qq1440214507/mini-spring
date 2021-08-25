@@ -8,4 +8,7 @@
         <property name="userDao" ref="proxyUserDao"/>
     </bean>
     <bean id="proxyUserDao" class="com.wy.springframework.test.bean.ProxyFactory"/>
+    <bean class="com.wy.springframework.test.event.CustomEventListener"/>
+    <bean class="com.wy.springframework.test.event.ContextRefreshEventListener"/>
+    <bean class="com.wy.springframework.test.event.ContextCloseEventListener"/>
 </beans>

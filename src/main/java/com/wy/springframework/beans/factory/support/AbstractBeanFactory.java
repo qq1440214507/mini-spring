@@ -5,7 +5,6 @@ import com.wy.springframework.beans.factory.FactoryBean;
 import com.wy.springframework.beans.factory.config.BeanDefinition;
 import com.wy.springframework.beans.factory.config.BeanPostProcessor;
 import com.wy.springframework.beans.factory.config.ConfigurableBeanFactory;
-import com.wy.springframework.beans.factory.config.DefaultSingletonBeanRegistry;
 import com.wy.springframework.util.ClassUtils;
 
 import java.util.ArrayList;
