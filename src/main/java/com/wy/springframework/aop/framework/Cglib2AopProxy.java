@@ -4,7 +4,6 @@ import com.wy.springframework.aop.AdvisedSupport;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
-import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.reflect.Method;
 
@@ -21,7 +20,6 @@ public class Cglib2AopProxy implements AopProxy{
         enhancer.setSuperclass(advised.getTargetSource().getTarget().getClass());
         enhancer.setInterfaces(advised.getTargetSource().getTargetClass());
         enhancer.setCallback(new DynamicAdvisedInterceptor(advised));
-
         return enhancer.create();
     }
     private static class DynamicAdvisedInterceptor implements MethodInterceptor {

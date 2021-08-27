@@ -6,10 +6,7 @@ import com.wy.springframework.beans.BeansException;
 import com.wy.springframework.beans.PropertyValue;
 import com.wy.springframework.beans.PropertyValues;
 import com.wy.springframework.beans.factory.*;
-import com.wy.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import com.wy.springframework.beans.factory.config.BeanDefinition;
-import com.wy.springframework.beans.factory.config.BeanPostProcessor;
-import com.wy.springframework.beans.factory.config.BeanReference;
+import com.wy.springframework.beans.factory.config.*;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -29,6 +26,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     protected Object createBean(String beanName, BeanDefinition beanDefinition, Object[] args) throws BeansException {
         Object bean = null;
         try {
+            bean = resolveBeforeInstantiation(beanName, beanDefinition);
+            if (null != bean) {
+                return bean;
+            }
             bean = createBeanInstance(beanDefinition, beanName, args);
             applyPropertyValues(beanName, bean, beanDefinition);
             bean = initializeBean(beanName, bean, beanDefinition);
@@ -36,29 +37,50 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             throw new BeansException("init bean error", e);
         }
         registerDisposableBeanIfNecessary(beanName, bean, beanDefinition);
-        if (beanDefinition.isSingleton()){
+        if (beanDefinition.isSingleton()) {
             addSingleton(beanName, bean);
         }
         return bean;
     }
 
+    protected Object resolveBeforeInstantiation(String beanName, BeanDefinition beanDefinition) {
+        Object bean = applyBeanPostProcessorsBeforeInstantiation(beanDefinition.getBeanClass(), beanName);
+        if (null != bean) {
+            bean = applyBeanPostProcessorsAfterInitialization(bean, beanName);
+        }
+        return bean;
+    }
+
+    protected Object applyBeanPostProcessorsBeforeInstantiation(Class<?> beanClass, String beanName) {
+        for (BeanPostProcessor beanPostProcessor : getBeanPostProcessors()) {
+            if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor) {
+                Object result = ((InstantiationAwareBeanPostProcessor) beanPostProcessor).postProcessBeforeInstantiation(beanClass, beanName);
+                if (null != result) {
+                    return result;
+                }
+            }
+        }
+        return null;
+
+    }
+
     protected void registerDisposableBeanIfNecessary(String beanName, Object bean, BeanDefinition beanDefinition) {
         if (!beanDefinition.isSingleton()) return;
         if (bean instanceof DisposableBean || StrUtil.isNotEmpty(beanDefinition.getDestroyMethodName())) {
-            registerDisposableBean(beanName,new DisposableBeanAdapter(bean,beanName,beanDefinition));
+            registerDisposableBean(beanName, new DisposableBeanAdapter(bean, beanName, beanDefinition));
         }
     }
 
 
     protected Object initializeBean(String beanName, Object bean, BeanDefinition beanDefinition) {
-        if (bean instanceof Aware){
-            if (bean instanceof BeanFactoryAware){
+        if (bean instanceof Aware) {
+            if (bean instanceof BeanFactoryAware) {
                 ((BeanFactoryAware) bean).setBeanFactory(this);
             }
-            if (bean instanceof BeanClassLoaderAware){
+            if (bean instanceof BeanClassLoaderAware) {
                 ((BeanClassLoaderAware) bean).setBeanClassLoader(getBeanClassLoader());
             }
-            if (bean instanceof BeanNameAware){
+            if (bean instanceof BeanNameAware) {
                 ((BeanNameAware) bean).setBeanName(beanName);
             }
         }
@@ -98,7 +120,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                 BeanUtil.setFieldValue(bean, name, value);
             }
         } catch (Exception e) {
-            throw new BeansException("error set property values:" + beanName,e);
+            throw new BeansException("error set property values:" + beanName, e);
         }
     }
 

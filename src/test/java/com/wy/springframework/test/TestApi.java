@@ -21,11 +21,24 @@ import java.lang.reflect.Proxy;
 public class TestApi {
     private DefaultResourceLoader resourceLoader;
 
+    @Test
+    public void test_aop2(){
+        ClassPathXmlApplicationContext applicationContext =
+                new ClassPathXmlApplicationContext("classpath:aop.xml");
+        final IUserService userService = applicationContext.getBean("userService", IUserService.class);
+        System.out.println(userService.queryUserInfo());
+
+    }
+
+
     @Before
     public void init() {
         resourceLoader = new DefaultResourceLoader();
     }
 
+    @Test
+    public void test(){
+    }
     @Test
     public void test_xml() {
         ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring2.xml");
