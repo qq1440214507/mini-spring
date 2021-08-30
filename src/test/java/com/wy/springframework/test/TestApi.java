@@ -14,12 +14,25 @@ import com.wy.springframework.test.interceptor.UserServiceInterceptor;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 
 public class TestApi {
     private DefaultResourceLoader resourceLoader;
+
+    @Test
+    public void test_scan(){
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring-scan.xml");
+        final IUserService userService = applicationContext.getBean("userService", IUserService.class);
+        System.out.println(userService.queryUserInfo());
+    }
+
+    @Test
+    public void test_property(){
+        ClassPathXmlApplicationContext applicationContext =
+                new ClassPathXmlApplicationContext("classpath:spring-property.xml");
+        final IUserService userService = applicationContext.getBean("userService", IUserService.class);
+        System.out.println(userService);
+    }
 
     @Test
     public void test_aop2(){
