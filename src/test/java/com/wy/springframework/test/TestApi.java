@@ -20,6 +20,15 @@ public class TestApi {
     private DefaultResourceLoader resourceLoader;
 
     @Test
+    public void test_values(){
+        ClassPathXmlApplicationContext applicationContext
+                = new ClassPathXmlApplicationContext("classpath:spring-values.xml");
+        final IUserService userService = applicationContext.getBean("userService", IUserService.class);
+        System.out.println(userService.queryUserInfo());
+    }
+
+
+    @Test
     public void test_scan(){
         ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring-scan.xml");
         final IUserService userService = applicationContext.getBean("userService", IUserService.class);

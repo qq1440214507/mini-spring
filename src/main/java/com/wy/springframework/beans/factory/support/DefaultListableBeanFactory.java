@@ -1,15 +1,17 @@
 package com.wy.springframework.beans.factory.support;
 
-import cn.hutool.core.map.CamelCaseLinkedMap;
 import com.wy.springframework.beans.BeansException;
 import com.wy.springframework.beans.factory.ConfigurableListableBeanFactory;
 import com.wy.springframework.beans.factory.config.BeanDefinition;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFactory implements BeanDefinitionRegistry, ConfigurableListableBeanFactory {
-    private Map<String, BeanDefinition> beanDefinitionMap = new CamelCaseLinkedMap<>();
+    private Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>();
 
     @Override
     public BeanDefinition getBeanDefinition(String beanName) throws BeansException {
@@ -51,5 +53,21 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     @Override
     public String[] getBeanDefinitionNames() {
         return beanDefinitionMap.keySet().toArray(new String[0]);
+    }
+
+    @Override
+    public <T> T getBean(Class<T> requireType) throws BeansException {
+        List<String> beanNames = new ArrayList<>();
+        for (Map.Entry<String, BeanDefinition> entry : beanDefinitionMap.entrySet()) {
+            Class beanClass = entry.getValue().getBeanClass();
+            if (requireType.isAssignableFrom(beanClass)){
+                beanNames.add(entry.getKey());
+            }
+        }
+        if (beanNames.size() == 1){
+            return getBean(beanNames.get(0),requireType);
+        }
+
+        throw new BeansException(requireType+" expected single bug get find more");
     }
 }

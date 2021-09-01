@@ -1,11 +1,13 @@
 package com.wy.springframework.beans.factory.support;
 
+import cn.hutool.core.util.StrUtil;
 import com.wy.springframework.beans.BeansException;
 import com.wy.springframework.beans.factory.FactoryBean;
 import com.wy.springframework.beans.factory.config.BeanDefinition;
 import com.wy.springframework.beans.factory.config.BeanPostProcessor;
 import com.wy.springframework.beans.factory.config.ConfigurableBeanFactory;
 import com.wy.springframework.util.ClassUtils;
+import com.wy.springframework.util.StringValueResolver;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +15,7 @@ import java.util.List;
 public abstract class AbstractBeanFactory extends FactoryBeanRegisterSupport implements ConfigurableBeanFactory {
     private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
     private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
-
+    private final List<StringValueResolver> embeddedValueResolves = new ArrayList<>();
     @Override
     public Object getBean(String beanName, Object... args) throws BeansException {
         return doGetBean(beanName, args);
@@ -23,6 +25,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegisterSupport imp
     public <T> T getBean(String beanName, Class<T> requiredType) throws BeansException {
         return doGetBean(beanName, null);
     }
+
 
     @SuppressWarnings("unchecked")
     protected <T> T doGetBean(final String beanName, final Object[] args) {
@@ -67,5 +70,19 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegisterSupport imp
 
     public ClassLoader getBeanClassLoader() {
         return beanClassLoader;
+    }
+
+    @Override
+    public void addEmbeddedValueResolver(StringValueResolver valueResolver) {
+        this.embeddedValueResolves.add(valueResolver);
+    }
+
+    @Override
+    public String resolveEmbeddedValue(String value) {
+        String result = value;
+        for (StringValueResolver embeddedValueResolve : embeddedValueResolves) {
+            result = embeddedValueResolve.resolveStringValue(result);
+        }
+        return result;
     }
 }
