@@ -18,6 +18,12 @@ import java.lang.reflect.Method;
 
 public class TestApi {
     private DefaultResourceLoader resourceLoader;
+    @Test
+    public void test_proxy_values(){
+        final ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring-proxy-values.xml");
+        final IUserService userService = applicationContext.getBean("userService", IUserService.class);
+        System.out.println(userService.queryUserInfo());
+    }
 
     @Test
     public void test_values(){
