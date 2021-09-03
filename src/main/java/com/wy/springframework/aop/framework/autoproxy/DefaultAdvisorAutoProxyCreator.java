@@ -13,10 +13,13 @@ import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public class DefaultAdvisorAutoProxyCreator implements InstantiationAwareBeanPostProcessor, BeanFactoryAware {
     private DefaultListableBeanFactory beanFactory;
-
+    private final Set<Object> earlyProxyReferences = Collections.synchronizedSet(new HashSet<>());
 
     @Override
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
@@ -33,6 +36,16 @@ public class DefaultAdvisorAutoProxyCreator implements InstantiationAwareBeanPos
         return propertyValues;
     }
 
+    @Override
+    public boolean postProcessAfterInstantiation(Object bean, String beanName) throws BeansException {
+        return true;
+    }
+    @Override
+    public Object getEarlyBeanReference(Object bean, String beanName) {
+        earlyProxyReferences.add(beanName);
+        return wrapIfNecessary(bean,beanName);
+    }
+
     private boolean isInfrastructureClass(Class<?> beanClass) {
         return Advice.class.isAssignableFrom(beanClass) || Pointcut.class.isAssignableFrom(beanClass)
                 || Advisor.class.isAssignableFrom(beanClass);
@@ -45,8 +58,17 @@ public class DefaultAdvisorAutoProxyCreator implements InstantiationAwareBeanPos
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        if (!earlyProxyReferences.contains(beanName)){
+            return wrapIfNecessary(bean,beanName);
+        }
+        return bean;
+    }
+
+    private Object wrapIfNecessary(Object bean,String beanName) {
         final Class<?> beanClass = bean.getClass();
-        if (isInfrastructureClass(beanClass)) return null;
+        if (isInfrastructureClass(beanClass)){
+            return bean;
+        }
         final Collection<AspectJExpressionPointcutAdvisor> advisors = beanFactory.getBeansOfType(AspectJExpressionPointcutAdvisor.class).values();
         for (AspectJExpressionPointcutAdvisor advisor : advisors) {
             final ClassFilter classFilter = advisor.getPointcut().getClassFilter();
@@ -56,7 +78,7 @@ public class DefaultAdvisorAutoProxyCreator implements InstantiationAwareBeanPos
             advisedSupport.setTargetSource(targetSource);
             advisedSupport.setMethodInterceptor((MethodInterceptor) advisor.getAdvice());
             advisedSupport.setMethodMatcher(advisor.getPointcut().getMethodMatcher());
-            advisedSupport.setProxyTargetClass(false);
+            advisedSupport.setProxyTargetClass(true);
             return new ProxyFactory(advisedSupport).getProxy();
         }
         return bean;

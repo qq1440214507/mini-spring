@@ -70,4 +70,6 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
         throw new BeansException(requireType+" expected single bug get find more");
     }
+
+
 }

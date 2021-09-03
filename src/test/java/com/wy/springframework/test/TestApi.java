@@ -7,8 +7,10 @@ import com.wy.springframework.aop.framework.Cglib2AopProxy;
 import com.wy.springframework.aop.framework.JdkDynamicAopProxy;
 import com.wy.springframework.context.support.ClassPathXmlApplicationContext;
 import com.wy.springframework.core.io.DefaultResourceLoader;
+import com.wy.springframework.test.bean.Husband;
 import com.wy.springframework.test.bean.IUserService;
 import com.wy.springframework.test.bean.UserService;
+import com.wy.springframework.test.bean.Wife;
 import com.wy.springframework.test.event.CustomEvent;
 import com.wy.springframework.test.interceptor.UserServiceInterceptor;
 import org.junit.Before;
@@ -18,6 +20,17 @@ import java.lang.reflect.Method;
 
 public class TestApi {
     private DefaultResourceLoader resourceLoader;
+
+    @Test
+    public void test_circle(){
+        ClassPathXmlApplicationContext classPathXmlApplicationContext =
+                new ClassPathXmlApplicationContext("classpath:spring-dep.xml");
+        final Husband husband = classPathXmlApplicationContext.getBean("husband", Husband.class);
+        final Wife wife = classPathXmlApplicationContext.getBean("wife", Wife.class);
+        System.out.println(husband.getWife());
+        System.out.println(wife.queryHusband());
+    }
+
     @Test
     public void test_proxy_values(){
         final ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring-proxy-values.xml");
