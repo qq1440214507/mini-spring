@@ -10,4 +10,6 @@ public interface BeanFactory {
     <T> T getBean(String beanName, Class<T> requiredType) throws BeansException;
 
     <T> T getBean(Class<T> requireType) throws BeansException;
+
+    boolean containsBean(String name);
 }

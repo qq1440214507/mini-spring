@@ -1,11 +1,11 @@
 package com.wy.springframework.beans.factory.support;
 
-import cn.hutool.core.util.StrUtil;
 import com.wy.springframework.beans.BeansException;
 import com.wy.springframework.beans.factory.FactoryBean;
 import com.wy.springframework.beans.factory.config.BeanDefinition;
 import com.wy.springframework.beans.factory.config.BeanPostProcessor;
 import com.wy.springframework.beans.factory.config.ConfigurableBeanFactory;
+import com.wy.springframework.core.convert.ConversionService;
 import com.wy.springframework.util.ClassUtils;
 import com.wy.springframework.util.StringValueResolver;
 
@@ -16,6 +16,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegisterSupport imp
     private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
     private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
     private final List<StringValueResolver> embeddedValueResolves = new ArrayList<>();
+    private ConversionService conversionService;
     @Override
     public Object getBean(String beanName, Object... args) throws BeansException {
         return doGetBean(beanName, args);
@@ -26,6 +27,19 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegisterSupport imp
         return doGetBean(beanName, null);
     }
 
+    @Override
+    public boolean containsBean(String name) {
+        return containsBeanDefinition(name);
+    }
+    protected abstract boolean containsBeanDefinition(String beanName);
+
+    public void setConversionService(ConversionService conversionService) {
+        this.conversionService = conversionService;
+    }
+
+    public ConversionService getConversionService() {
+        return conversionService;
+    }
 
     @SuppressWarnings("unchecked")
     protected <T> T doGetBean(final String beanName, final Object[] args) {
@@ -34,7 +48,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegisterSupport imp
             return (T) getObjectForBeanInstance(sharedInstance,beanName);
         }
         BeanDefinition beanDefinition = getBeanDefinition(beanName);
-        return (T) createBean(beanName, beanDefinition, args);
+        final Object bean = createBean(beanName, beanDefinition, args);
+        return (T) getObjectForBeanInstance(bean,beanName);
     }
 
     private Object getObjectForBeanInstance(Object beanInstance, String beanName) {

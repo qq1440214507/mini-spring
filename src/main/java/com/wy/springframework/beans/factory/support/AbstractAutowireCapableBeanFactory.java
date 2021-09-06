@@ -2,14 +2,17 @@ package com.wy.springframework.beans.factory.support;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.TypeUtil;
 import com.wy.springframework.beans.BeansException;
 import com.wy.springframework.beans.PropertyValue;
 import com.wy.springframework.beans.PropertyValues;
 import com.wy.springframework.beans.factory.*;
 import com.wy.springframework.beans.factory.config.*;
+import com.wy.springframework.core.convert.ConversionService;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 
 public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory implements AutowireCapableBeanFactory {
     private InstantiationStrategy instantiationStrategy = new SimpleInstantiationStrategy();
@@ -174,6 +177,16 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                     // A 依赖 B，获取 B 的实例化
                     BeanReference beanReference = (BeanReference) value;
                     value = getBean(beanReference.getBeanName());
+                }else {
+                    final Class<?> sourceType = value.getClass();
+                    final Class<?> targetType = (Class<?>) TypeUtil.getFieldType(bean.getClass(), name);
+                    final ConversionService conversionService = getConversionService();
+                    if (null != conversionService){
+                        if (conversionService.canConvert(sourceType,targetType)){
+                            value = conversionService.convert(value,targetType);
+                        }
+                    }
+
                 }
 
                 // 反射设置属性填充

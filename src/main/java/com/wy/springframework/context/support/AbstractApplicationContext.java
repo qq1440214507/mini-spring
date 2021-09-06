@@ -37,6 +37,11 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
 
     }
 
+    @Override
+    public boolean containsBean(String name) {
+        return getBeanFactory().containsBean(name);
+    }
+
     private void finishRefresh() {
         publishEvent(new ContextRefreshEvent(this));
     }

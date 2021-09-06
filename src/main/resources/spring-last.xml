@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<beans>
+    <bean id="husband" class="com.wy.springframework.test.bean.Husbadn2">
+        <property name="wifiName" value="你猜"/>
+        <property name="marriageDate" value="2018-08-08"/>
+    </bean>
+    <bean id="conversionService" class="com.wy.springframework.context.support.ConversionServiceFactoryBean">
+        <property name="converters" ref="converters"/>
+    </bean>
+    <bean id="converters" class="com.wy.springframework.test.convert.ConvertersFactoryBean"/>
+</beans>

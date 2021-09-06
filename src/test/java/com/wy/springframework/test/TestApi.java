@@ -7,10 +7,7 @@ import com.wy.springframework.aop.framework.Cglib2AopProxy;
 import com.wy.springframework.aop.framework.JdkDynamicAopProxy;
 import com.wy.springframework.context.support.ClassPathXmlApplicationContext;
 import com.wy.springframework.core.io.DefaultResourceLoader;
-import com.wy.springframework.test.bean.Husband;
-import com.wy.springframework.test.bean.IUserService;
-import com.wy.springframework.test.bean.UserService;
-import com.wy.springframework.test.bean.Wife;
+import com.wy.springframework.test.bean.*;
 import com.wy.springframework.test.event.CustomEvent;
 import com.wy.springframework.test.interceptor.UserServiceInterceptor;
 import org.junit.Before;
@@ -20,6 +17,14 @@ import java.lang.reflect.Method;
 
 public class TestApi {
     private DefaultResourceLoader resourceLoader;
+
+    @Test
+    public void test_convert(){
+        ClassPathXmlApplicationContext classPathXmlApplicationContext =  new ClassPathXmlApplicationContext("classpath:spring-last.xml");
+        final Husbadn2 husband = classPathXmlApplicationContext.getBean("husband", Husbadn2.class);
+        System.out.println(husband);
+
+    }
 
     @Test
     public void test_circle(){
